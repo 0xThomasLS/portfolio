@@ -1,113 +1,74 @@
 <script setup lang="ts">
-import { useTemplateRef, onMounted, ref } from 'vue'
+import { useTemplateRef, onMounted } from 'vue'
+import type { CanvasOptions } from '@/utils/CanvasContext'
+import { CanvasContext } from '@/utils/CanvasContext'
 import exec from '@/utils/exec'
 
-const fontSize = 18
-const fontColor = '#fff'
-
-const terminal = ref({
-  x: 0,
-  y: fontSize,
-  content: '',
-  height: 0,
-})
-
-const baseUserInput = '$> '
+let canvasContext: CanvasContext
 const input = useTemplateRef('input')
-const userInput = ref({
-  x: 0,
-  y: 0,
-  content: baseUserInput,
-})
 
 function draw() {
-  const content = document.querySelector('.content') as HTMLDivElement
-  const canvas = document.querySelector('canvas') as HTMLCanvasElement
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  const cursor = {
-    x: 0,
-    y: 0,
-    width: (fontSize + 2) / 2,
-    height: fontSize + 2,
-    refresh: 40,
-    tickCount: 0,
-  }
+  canvasContext.canvas.width = canvasContext.content.offsetWidth
+  canvasContext.canvas.height = canvasContext.content.offsetHeight
 
-  canvas.width = content.offsetWidth
-  canvas.height = content.offsetHeight
-
-  function splitLine(line: string) {
-    const lines = []
-    let current = ''
-
-    for (let i = 0; i < line.length; i++) {
-      current += line[i]
-      const text = ctx.measureText(current + 'm')
-
-      if (text.width > canvas.width) {
-        lines.push(current)
-        current = ''
-      }
-    }
-
-    if (current != '') {
-      lines.push(current)
-    }
-
-    return lines
-  }
-
-  function splitText(text: string) {
-    const lines = text.split('\n')
-    const result: string[] = []
-    let i = 0
-
-    lines.forEach((line) => {
-      const splittedLine = splitLine(line)
-
-      splittedLine.forEach((line) => {
-        result.push(line)
-      })
-    })
-
-    return result
-  }
+  canvasContext.terminal.y = canvasContext.font.size
+  canvasContext.terminal.height = 0
+  canvasContext.userInput.content = canvasContext.userInput.base
 
   function drawTerminalContent() {
-    const lines = splitText(terminal.value.content)
+    const lines = canvasContext.splitText(canvasContext.terminal.content)
 
     for (let i = 0; i < lines.length; i++) {
-      ctx.fillText(lines[i], terminal.value.x, terminal.value.y + fontSize * i)
+      canvasContext.ctx.fillText(
+        lines[i],
+        canvasContext.terminal.x,
+        canvasContext.terminal.y + canvasContext.font.size * i,
+      )
     }
 
-    terminal.value.height = (fontSize + 2) * lines.length
+    canvasContext.terminal.height = canvasContext.font.size * lines.length
   }
 
-  function animateUserInput() {
-    cursor.tickCount++
+  function drawUserInput() {
+    canvasContext.cursor.tickCount++
 
-    ctx.font = 'bold ' + fontSize + 'px serif'
-    userInput.value.y = terminal.value.height + fontSize
+    canvasContext.ctx.font = 'bold ' + canvasContext.font.size + 'px '
+    canvasContext.userInput.y = canvasContext.terminal.y + canvasContext.terminal.height
 
     // Draw the user input
-    const lines = splitText(userInput.value.content)
+    const lines = canvasContext.splitText(canvasContext.userInput.content)
 
     lines.forEach((line, i) => {
-      ctx.fillText(line, userInput.value.x, userInput.value.y + fontSize * i)
+      canvasContext.ctx.fillText(
+        line,
+        canvasContext.userInput.x,
+        canvasContext.userInput.y + canvasContext.font.size * i,
+      )
     })
 
-    // Draw the cursor
-    if (document.activeElement === input.value && cursor.tickCount <= cursor.refresh) {
-      const text = ctx.measureText(lines[lines.length - 1])
+    canvasContext.terminal.height = canvasContext.cursor.height * lines.length
 
-      cursor.x = text.width
-      cursor.y = userInput.value.y + fontSize * (lines.length - 2)
-      ctx.fillRect(cursor.x, cursor.y, cursor.width, cursor.height)
+    // Draw the cursor
+    if (
+      document.activeElement === input.value &&
+      canvasContext.cursor.tickCount <= canvasContext.cursor.refresh
+    ) {
+      const text = canvasContext.ctx.measureText(lines[lines.length - 1])
+
+      canvasContext.cursor.x = text.width > 0 ? text.width : 0
+      canvasContext.cursor.y =
+        canvasContext.userInput.y + canvasContext.font.size * (lines.length - 2)
+      canvasContext.ctx.fillRect(
+        canvasContext.cursor.x,
+        canvasContext.cursor.y,
+        canvasContext.cursor.width,
+        canvasContext.cursor.height,
+      )
     }
 
     // Reset the tick counter
-    if (cursor.tickCount >= cursor.refresh * 2) {
-      cursor.tickCount = 0
+    if (canvasContext.cursor.tickCount >= canvasContext.cursor.refresh * 2) {
+      canvasContext.cursor.tickCount = 0
     }
   }
 
@@ -115,35 +76,50 @@ function draw() {
     requestAnimationFrame(animate)
 
     // Set default context parameters
-    ctx.font = fontSize + 'px serif'
-    ctx.fillStyle = fontColor
+    canvasContext.ctx.setTransform(1, 0, 0, 1, 0, 0)
+    canvasContext.ctx.font = canvasContext.font.size + 'px ' + canvasContext.font.family
+    canvasContext.ctx.fillStyle = canvasContext.font.color
 
     // Clear the terminal
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    canvasContext.ctx.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
+
+    const translateY =
+      canvasContext.canvas.height - canvasContext.cursor.y - 2 * canvasContext.font.size
+    if (canvasContext.cursor.y > canvasContext.canvas.height) {
+      canvasContext.terminal.translateY = translateY
+      canvasContext.ctx.translate(0, canvasContext.terminal.translateY)
+    }
 
     // Draw the terminal content
     drawTerminalContent()
 
     // Animate user input
-    animateUserInput()
+    drawUserInput()
   }
 
   animate()
 }
 
 onMounted(() => {
+  const options: CanvasOptions = {
+    content: document.querySelector('.content') as HTMLDivElement,
+    canvas: document.querySelector('canvas') as HTMLCanvasElement,
+  }
+  canvasContext = new CanvasContext(options)
+
   input.value.focus()
   draw()
 })
 
 function setUserInput(event: KeyboardEvent) {
-  userInput.value.content = baseUserInput + input.value.value
+  canvasContext.userInput.content = canvasContext.userInput.base + input.value.value
 
   // Exec command
   if (event.keyCode === 13) {
-    exec(terminal, input.value.value)
+    canvasContext.terminal.content += canvasContext.userInput.content + '\n'
+    exec(canvasContext, input.value.value)
     input.value.value = ''
-    userInput.value.content = baseUserInput
+    canvasContext.userInput.content = canvasContext.userInput.base
   }
 }
 </script>
@@ -172,6 +148,7 @@ function setUserInput(event: KeyboardEvent) {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 800px;
+  height: 500px;
   background-color: #2d2d2d;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -238,8 +215,9 @@ function setUserInput(event: KeyboardEvent) {
 
 #terminal > .content {
   position: relative;
-  width: 100%;
-  height: 600px;
+  width: calc(100% - 20px);
+  height: calc(100% - 50px);
+  padding: 10px;
 }
 
 #terminal > .content > input {

@@ -1,19 +1,13 @@
-import type { Ref } from 'vue'
-import clear from './commands/clear.ts'
+import { CanvasContext } from './CanvasContext'
+import * as commands from './commands'
 
-type CommandList = {
-  [key: string]: (terminal: Ref, args?: string[]) => void
-}
-
-export default async function exec(terminal: Ref, str: string) {
+export default async function exec(context: CanvasContext, str: string) {
   const command = str.split(' ')[0]
-  const fn: CommandList = {
-    clear,
-  }
+  const args = str.split(' ').slice(1)
 
-  if (fn[command]) {
-    fn[command](terminal)
+  if (commands[command]) {
+    commands[command].handle(context, args)
   } else {
-    terminal.value.content += 'La commande « ' + command + " » n'a pas été trouvée\n"
+    context.terminal.content += 'La commande « ' + command + " » n'a pas été trouvée\n"
   }
 }
