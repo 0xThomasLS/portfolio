@@ -3,7 +3,7 @@ import structure from '@/assets/structure'
 
 export default class {
   static call = 'ls [-l]'
-  static description = 'Liste les fichiers et dossiers dans le répertoire courant'
+  static description = 'Liste les fichiers et dossiers du le répertoire courant'
 
   static handle(context: CanvasContext, args: string[]) {
     const result = getContentOfWorkingDirectory(context.terminal.workingDirectory)
