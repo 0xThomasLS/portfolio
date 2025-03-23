@@ -25,6 +25,8 @@ export class CanvasContext {
     content: '',
     height: 0,
     translateY: 0,
+    commands: [],
+    workingDirectory: '/home/thomas',
   }
 
   public userInput = {

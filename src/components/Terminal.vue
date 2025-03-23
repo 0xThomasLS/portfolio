@@ -111,13 +111,14 @@ onMounted(() => {
   draw()
 })
 
-function setUserInput(event: KeyboardEvent) {
+async function setUserInput(event: KeyboardEvent) {
   canvasContext.userInput.content = canvasContext.userInput.base + input.value.value
 
   // Exec command
   if (event.keyCode === 13) {
     canvasContext.terminal.content += canvasContext.userInput.content + '\n'
-    exec(canvasContext, input.value.value)
+    canvasContext.terminal.commands.push(input.value.value)
+    await exec(canvasContext, input.value.value)
     input.value.value = ''
     canvasContext.userInput.content = canvasContext.userInput.base
   }
