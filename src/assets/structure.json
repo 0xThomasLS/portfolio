@@ -19,6 +19,9 @@
             "exit": "./commands/exit.ts"
           },
           {
+            "export": "./commands/export.ts"
+          },
+          {
             "help": "./commands/help.ts"
           },
           {
