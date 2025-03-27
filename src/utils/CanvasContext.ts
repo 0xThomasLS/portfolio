@@ -1,6 +1,17 @@
+import imageToAscii from '@/utils/imageToAscii'
+
 export type CanvasOptions = {
   content: HTMLDivElement
   canvas: HTMLCanvasElement
+  emit: (event: 'close', ...args: any[]) => void
+}
+
+type ImageOptions = {
+  data: HTMLImageElement
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 export class CanvasContext {
@@ -22,11 +33,16 @@ export class CanvasContext {
   public terminal = {
     x: 0,
     y: this.cursor.height,
-    content: '',
+    content: [],
     height: 0,
     translateY: 0,
     commands: [],
     workingDirectory: '/home/thomas',
+    images: [],
+    vars: {
+      USER: 'thomas',
+      PATH: '/bin:/home/thomas/bin',
+    },
   }
 
   public userInput = {
@@ -39,11 +55,13 @@ export class CanvasContext {
   public content: HTMLDivElement
   public canvas: HTMLCanvasElement
   public ctx: CanvasRenderingContext2D
+  public emit: (event: 'close', ...args: any[]) => void
 
   constructor(options: CanvasOptions) {
     this.content = options.content
     this.canvas = options.canvas
     this.ctx = options.canvas.getContext('2d') as CanvasRenderingContext2D
+    this.emit = options.emit
   }
 
   public splitLine(line: string) {
@@ -80,5 +98,20 @@ export class CanvasContext {
     })
 
     return result
+  }
+
+  public addContent(value: string, type: 'command' | 'text' | 'image' = 'text') {
+    this.terminal.content.push({
+      type,
+      value,
+    })
+  }
+
+  public println(value: string, isCommand: boolean = false) {
+    this.addContent(value + '\n', isCommand ? 'command' : 'text')
+  }
+
+  public async printImage(path: string, width: number, height: number) {
+    this.addContent(await imageToAscii(path, width, height), 'image')
   }
 }

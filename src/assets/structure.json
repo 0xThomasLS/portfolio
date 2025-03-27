@@ -2,7 +2,38 @@
   {
     "/": [
       {
-        "bin": []
+        "bin": [
+          {
+            "cat": "./commands/cat.ts"
+          },
+          {
+            "cd": "./commands/cd.ts"
+          },
+          {
+            "clear": "./commands/clear.ts"
+          },
+          {
+            "echo": "./commands/echo.ts"
+          },
+          {
+            "exit": "./commands/exit.ts"
+          },
+          {
+            "help": "./commands/help.ts"
+          },
+          {
+            "history": "./commands/history.ts"
+          },
+          {
+            "ls": "./commands/ls.ts"
+          },
+          {
+            "pwd": "./commands/pwd.ts"
+          },
+          {
+            "whoami": "./commands/whoami.ts"
+          }
+        ]
       },
       {
         "boot": []
@@ -48,7 +79,14 @@
           {
             "thomas": [
               {
-                "bin": []
+                "bin": [
+                  {
+                    "hello": "./commands/hello.ts"
+                  },
+                  {
+                    "welcome": "./commands/welcome.ts"
+                  }
+                ]
               },
               {
                 "profil.md": "storage/profil.md"

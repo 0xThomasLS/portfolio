@@ -6,7 +6,7 @@ export default class {
 
   static handle(context: CanvasContext) {
     context.terminal.commands.forEach((command, index) => {
-      context.terminal.content += index + '\t\t' + command + '\n'
+      context.println(index + '\t\t' + command)
     })
   }
 }

@@ -5,6 +5,6 @@ export default class {
   static description = 'Affiche le répertoire de travail courant'
 
   static handle(context: CanvasContext) {
-    context.terminal.content += context.terminal.workingDirectory + '\n'
+    context.println(context.terminal.workingDirectory)
   }
 }

@@ -5,6 +5,6 @@ export default class {
   static description = 'Affiche hello world'
 
   static handle(context: CanvasContext) {
-    context.terminal.content += 'Hello, world!\n'
+    context.println('Hello, world!')
   }
 }

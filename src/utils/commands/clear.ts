@@ -5,6 +5,6 @@ export default class {
   static description = 'Supprime le contenu du terminal'
 
   static handle(context: CanvasContext) {
-    context.terminal.content = ''
+    context.terminal.content = []
   }
 }

@@ -1,40 +1,36 @@
 import { CanvasContext } from '@/utils/CanvasContext'
-import structure from '@/assets/structure'
+import { search } from '@/utils/FileStructure'
 
 export default class {
-  static call = 'ls [-l]'
-  static description = 'Liste les fichiers et dossiers du le répertoire courant'
+  static call = 'ls [-l] [path]'
+  static description = 'Liste les fichiers et dossiers du répertoire courant'
 
   static handle(context: CanvasContext, args: string[]) {
-    const result = getContentOfWorkingDirectory(context.terminal.workingDirectory)
+    const opts = {
+      path: undefined,
+      details: false,
+    }
+
+    args.forEach((arg) => {
+      if (arg === '-l') {
+        opts.details = true
+      } else {
+        opts.path = arg
+      }
+    })
+
+    const result = search(context, opts.path)
 
     result.forEach((item) => {
       for (const name in item) {
         let str = name + '\n'
 
-        if (args[0] === '-l') {
+        if (opts.details) {
           str = (Array.isArray(item[name]) ? 'drwx------\t' : '-rwx------\t') + str
         }
 
-        context.terminal.content += str
+        context.println(str)
       }
     })
   }
-}
-
-function getContentOfWorkingDirectory(workingDirectory: string) {
-  const path = workingDirectory.split('/')
-  let current = structure
-
-  path[0] = '/'
-
-  path.forEach((directory) => {
-    current.forEach((item) => {
-      if (item[directory]) {
-        current = item[directory]
-      }
-    })
-  })
-
-  return current
 }

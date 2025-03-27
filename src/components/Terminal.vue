@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { useTemplateRef, onMounted } from 'vue'
+import { useTemplateRef, onMounted, ref } from 'vue'
 import type { CanvasOptions } from '@/utils/CanvasContext'
 import { CanvasContext } from '@/utils/CanvasContext'
 import exec from '@/utils/exec'
 
-let canvasContext: CanvasContext
+const emit = defineEmits(['close'])
 const input = useTemplateRef('input')
+const newExecution = ref(false)
+const maxTranslationY = ref(0)
+const commandCounter = ref(0)
+const fullscreen = ref(true)
 
-function draw() {
+let canvasContext: CanvasContext
+
+async function draw() {
   canvasContext.canvas.width = canvasContext.content.offsetWidth
   canvasContext.canvas.height = canvasContext.content.offsetHeight
 
@@ -15,38 +21,68 @@ function draw() {
   canvasContext.terminal.height = 0
   canvasContext.userInput.content = canvasContext.userInput.base
 
+  function resetCanvas() {
+    // Set default context parameters
+    canvasContext.canvas.width = canvasContext.content.offsetWidth
+    canvasContext.canvas.height = canvasContext.content.offsetHeight
+    canvasContext.ctx.setTransform(1, 0, 0, 1, 0, 0)
+    canvasContext.ctx.font = canvasContext.font.size + 'px ' + canvasContext.font.family
+    canvasContext.ctx.fillStyle = canvasContext.font.color
+    canvasContext.terminal.height = 0
+
+    // Clear the terminal
+    canvasContext.ctx.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
+  }
+
+  function drawText(text: string, isCommand: boolean = false) {
+    const lines = canvasContext.splitText(text)
+
+    canvasContext.ctx.font =
+      (isCommand ? 'bold ' : '') + canvasContext.font.size + 'px ' + canvasContext.font.family
+
+    lines.forEach((line: string) => {
+      canvasContext.terminal.height += canvasContext.font.size
+      canvasContext.ctx.fillText(line, canvasContext.terminal.x, canvasContext.terminal.height)
+    })
+  }
+
+  function drawImages(image: string) {
+    const lines: string[] = image.split('\n')
+    const fontSize = 5
+
+    canvasContext.ctx.font = fontSize + 'px ' + canvasContext.font.family
+
+    lines.forEach((line: string) => {
+      canvasContext.terminal.height += fontSize
+      canvasContext.ctx.fillText(line, canvasContext.terminal.x, canvasContext.terminal.height)
+    })
+  }
+
   function drawTerminalContent() {
-    const lines = canvasContext.splitText(canvasContext.terminal.content)
-
-    for (let i = 0; i < lines.length; i++) {
-      canvasContext.ctx.fillText(
-        lines[i],
-        canvasContext.terminal.x,
-        canvasContext.terminal.y + canvasContext.font.size * i,
-      )
-    }
-
-    canvasContext.terminal.height = canvasContext.font.size * lines.length
+    canvasContext.terminal.content.forEach((content) => {
+      if (content.type === 'command') {
+        drawText(content.value, true)
+      } else if (content.type === 'text') {
+        drawText(content.value)
+      } else if (content.type === 'image') {
+        drawImages(content.value)
+      }
+    })
   }
 
   function drawUserInput() {
     canvasContext.cursor.tickCount++
 
-    canvasContext.ctx.font = 'bold ' + canvasContext.font.size + 'px '
+    canvasContext.ctx.font = 'bold ' + canvasContext.font.size + 'px ' + canvasContext.font.family
     canvasContext.userInput.y = canvasContext.terminal.y + canvasContext.terminal.height
 
     // Draw the user input
     const lines = canvasContext.splitText(canvasContext.userInput.content)
 
-    lines.forEach((line, i) => {
-      canvasContext.ctx.fillText(
-        line,
-        canvasContext.userInput.x,
-        canvasContext.userInput.y + canvasContext.font.size * i,
-      )
+    lines.forEach((line) => {
+      canvasContext.terminal.height += canvasContext.cursor.height
+      canvasContext.ctx.fillText(line, canvasContext.userInput.x, canvasContext.terminal.height)
     })
-
-    canvasContext.terminal.height = canvasContext.cursor.height * lines.length
 
     // Draw the cursor
     if (
@@ -56,14 +92,19 @@ function draw() {
       const text = canvasContext.ctx.measureText(lines[lines.length - 1])
 
       canvasContext.cursor.x = text.width > 0 ? text.width : 0
-      canvasContext.cursor.y =
-        canvasContext.userInput.y + canvasContext.font.size * (lines.length - 2)
+      canvasContext.cursor.y = canvasContext.terminal.height - canvasContext.font.size
       canvasContext.ctx.fillRect(
         canvasContext.cursor.x,
         canvasContext.cursor.y,
         canvasContext.cursor.width,
         canvasContext.cursor.height,
       )
+
+      // Calculate the terminal translation
+      if (newExecution.value) {
+        calculateTranslation()
+        newExecution.value = false
+      }
     }
 
     // Reset the tick counter
@@ -75,20 +116,11 @@ function draw() {
   function animate() {
     requestAnimationFrame(animate)
 
-    // Set default context parameters
-    canvasContext.ctx.setTransform(1, 0, 0, 1, 0, 0)
-    canvasContext.ctx.font = canvasContext.font.size + 'px ' + canvasContext.font.family
-    canvasContext.ctx.fillStyle = canvasContext.font.color
+    // Reset the canvas
+    resetCanvas()
 
-    // Clear the terminal
-    canvasContext.ctx.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
-
-    const translateY =
-      canvasContext.canvas.height - canvasContext.cursor.y - 2 * canvasContext.font.size
-    if (canvasContext.cursor.y > canvasContext.canvas.height) {
-      canvasContext.terminal.translateY = translateY
-      canvasContext.ctx.translate(0, canvasContext.terminal.translateY)
-    }
+    // Translate the terminal content
+    canvasContext.ctx.translate(0, canvasContext.terminal.translateY)
 
     // Draw the terminal content
     drawTerminalContent()
@@ -100,43 +132,100 @@ function draw() {
   animate()
 }
 
+function calculateTranslation() {
+  const totalHeight = canvasContext.terminal.height + canvasContext.font.size
+  maxTranslationY.value = canvasContext.canvas.height - totalHeight
+
+  if (totalHeight > canvasContext.canvas.height) {
+    canvasContext.terminal.translateY = maxTranslationY.value
+  }
+}
+
+function setUserInput(str: string) {
+  if (input.value) {
+    input.value.value = str
+  }
+  canvasContext.userInput.content = canvasContext.userInput.base + str
+}
+
+async function start() {
+  await exec(canvasContext, 'welcome', false)
+  newExecution.value = true
+}
+
+async function execUserInput(event: KeyboardEvent) {
+  canvasContext.userInput.content = canvasContext.userInput.base + input.value.value
+
+  // Exec command
+  if (event.key === 'Enter') {
+    await exec(canvasContext, input.value.value)
+    setUserInput('')
+    commandCounter.value++
+    newExecution.value = true
+  }
+  // Back to history
+  else if (event.key === 'ArrowUp' && commandCounter.value > 0) {
+    commandCounter.value--
+    setUserInput(canvasContext.terminal.commands[commandCounter.value])
+  }
+  // Forward to history
+  else if (
+    event.key === 'ArrowDown' &&
+    commandCounter.value < canvasContext.terminal.commands.length - 1
+  ) {
+    commandCounter.value++
+    setUserInput(canvasContext.terminal.commands[commandCounter.value])
+  }
+}
+
+function scroll(event: Event) {
+  const step = canvasContext.font.size - 2
+
+  // Scroll down
+  if (event.deltaY < 0 && canvasContext.terminal.translateY < 0) {
+    const result = canvasContext.terminal.translateY + step
+    canvasContext.terminal.translateY = result < 0 ? result : 0
+  }
+  // Scroll up
+  else if (event.deltaY > 0 && canvasContext.terminal.translateY > maxTranslationY.value) {
+    const result = canvasContext.terminal.translateY - step
+    canvasContext.terminal.translateY =
+      result > maxTranslationY.value ? result : maxTranslationY.value
+  }
+}
+
+function toggleFullscreen() {
+  fullscreen.value = !fullscreen.value
+  newExecution.value = true
+}
+
 onMounted(() => {
   const options: CanvasOptions = {
     content: document.querySelector('.content') as HTMLDivElement,
     canvas: document.querySelector('canvas') as HTMLCanvasElement,
+    emit: emit,
   }
   canvasContext = new CanvasContext(options)
 
-  input.value.focus()
-  draw()
+  setTimeout(async () => {
+    await start()
+    input.value.focus()
+    draw()
+  }, 100)
 })
-
-async function setUserInput(event: KeyboardEvent) {
-  canvasContext.userInput.content = canvasContext.userInput.base + input.value.value
-
-  // Exec command
-  if (event.keyCode === 13) {
-    canvasContext.terminal.content += canvasContext.userInput.content + '\n'
-    canvasContext.terminal.commands.push(input.value.value)
-    await exec(canvasContext, input.value.value)
-    input.value.value = ''
-    canvasContext.userInput.content = canvasContext.userInput.base
-  }
-}
 </script>
 
 <template>
-  <div id="terminal">
+  <div id="terminal" :class="{ fullscreen: fullscreen }">
     <div class="top-bar">
       <div class="buttons">
-        <div class="button close"></div>
-        <div class="button minimize"></div>
-        <div class="button maximize"></div>
+        <div class="button close" @click.prevent="emit('close')"></div>
+        <div class="button maximize" @click.prevent="toggleFullscreen"></div>
       </div>
       <div class="title">Terminal</div>
     </div>
-    <div class="content">
-      <input ref="input" type="text" @keyup="setUserInput" />
+    <div class="content" @click="input.focus()" @wheel="scroll">
+      <input ref="input" type="text" @keyup="execUserInput" />
       <canvas></canvas>
     </div>
   </div>
@@ -148,12 +237,19 @@ async function setUserInput(event: KeyboardEvent) {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 800px;
-  height: 500px;
+  width: 80%;
+  height: 80%;
   background-color: #2d2d2d;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+}
+
+#terminal.fullscreen {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 #terminal > .top-bar {
@@ -225,8 +321,8 @@ async function setUserInput(event: KeyboardEvent) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 0;
+  height: 0;
   outline: none;
   background-color: transparent;
   border: 0;
