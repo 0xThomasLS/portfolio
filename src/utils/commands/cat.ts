@@ -16,9 +16,13 @@ export default class {
       return
     }
 
-    const response = await fetch('/' + result)
-    const content = await response.text()
+    let response: Response
+    if (result[0] === '/') {
+      response = await fetch(result)
+    } else if (result[0] === '.') {
+      response = await fetch(new URL('.' + result, import.meta.url))
+    }
 
-    context.println(content)
+    context.println(await response.text())
   }
 }

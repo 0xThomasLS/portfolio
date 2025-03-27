@@ -34,6 +34,9 @@
             "pwd": "./commands/pwd.ts"
           },
           {
+            "reboot": "./commands/reboot.ts"
+          },
+          {
             "whoami": "./commands/whoami.ts"
           }
         ]
@@ -92,7 +95,7 @@
                 ]
               },
               {
-                "profil.md": "storage/profil.md"
+                "profil.md": "/storage/profil.md"
               }
             ]
           }

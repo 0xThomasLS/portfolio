@@ -4,12 +4,12 @@ import type { CanvasOptions } from '@/utils/CanvasContext'
 import { CanvasContext } from '@/utils/CanvasContext'
 import exec from '@/utils/exec'
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['event'])
 const input = useTemplateRef('input')
 const newExecution = ref(false)
 const maxTranslationY = ref(0)
 const commandCounter = ref(0)
-const fullscreen = ref(true)
+const fullscreen = ref(false)
 
 let canvasContext: CanvasContext
 

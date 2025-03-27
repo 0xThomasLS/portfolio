@@ -1,16 +1,25 @@
 <script setup lang="ts">
+import Loader from '@/components/Loader.vue'
+import Terminal from '@/components/Terminal.vue'
 import BashIcon from '@/assets/icons/BashIcon.vue'
+import { onMounted } from 'vue'
 import { ref } from 'vue'
 
 const emit = defineEmits(['open'])
 const clickCounter = ref(0)
 const command = ref('')
+const loading = ref(true)
+const showTerminal = ref(true)
 
-function open(cmd: string) {
+function open(command: string) {
+  if (command === 'terminal') {
+    showTerminal.value = true
+  }
+}
+
+function click(cmd: string) {
   if (command.value === cmd && clickCounter.value === 1) {
-    emit('open', cmd)
-    command.value = ''
-    clickCounter.value = 0
+    open(cmd)
   } else {
     command.value = cmd
     clickCounter.value++
@@ -21,16 +30,41 @@ function open(cmd: string) {
     clickCounter.value = 0
   }, 500)
 }
+
+function event(key: string) {
+  if (key === 'exit') {
+    showTerminal.value = false
+  } else if (key === 'reboot') {
+    loading.value = true
+    boot()
+  }
+}
+
+function boot() {
+  setTimeout(() => {
+    loading.value = false
+  }, 1000)
+}
+
+onMounted(() => {
+  boot()
+})
 </script>
 
 <template>
   <div id="computer">
     <img src="@/assets/images/computer.svg" />
-    <div class="screen">
-      <div class="icons">
-        <BashIcon class="icon" @click.prevent="open('terminal')" />
+    <div id="screen">
+      <div v-if="loading" id="loader">
+        <Loader />
+        <div>Booting...</div>
       </div>
-      <slot></slot>
+      <div v-else id="dashboard">
+        <div class="icons">
+          <BashIcon class="icon" @click.prevent="click('terminal')" />
+        </div>
+        <Terminal v-if="showTerminal" @event="event" />
+      </div>
     </div>
   </div>
 </template>
@@ -56,25 +90,44 @@ function open(cmd: string) {
   height: 100%;
 }
 
-#computer > .screen {
+#screen {
   position: absolute;
   top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  background-image: url('@/assets/images/city.webp');
-  background-size: cover;
   background-color: black;
   height: 74%;
   width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#computer > .screen > .icons {
+#loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+  color: white;
+}
+
+#dashboard {
+  display: flex;
+  gap: 1em;
+  height: 100%;
+  width: 100%;
+}
+
+#dashboard > .icons {
+  background-image: url('@/assets/images/city.webp');
+  background-size: cover;
   display: flex;
   flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
 }
 
-#computer > .screen > .icons > .icon {
-  margin: 0.8em;
+#dashboard > .icons > .icon {
   cursor: pointer;
   width: 64px;
   height: 64px;
