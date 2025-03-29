@@ -2,7 +2,7 @@ import { CanvasContext } from '@/utils/CanvasContext'
 import { search } from '@/utils/FileStructure'
 
 export default class {
-  static call = 'ls [-l] [path]'
+  static call = 'ls [-l] <path>'
   static description = 'Liste les fichiers et dossiers du répertoire courant'
 
   static handle(context: CanvasContext, args: string[]) {

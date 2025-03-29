@@ -1,7 +1,7 @@
 import { CanvasContext } from '@/utils/CanvasContext'
 
 export default class {
-  static call = 'cat <url>'
+  static call = 'curl <url>'
   static description = "Affiche le contenu d'une page web"
 
   static async handle(context: CanvasContext, args: string[]) {

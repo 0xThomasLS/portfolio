@@ -2,7 +2,7 @@ import { CanvasContext } from '@/utils/CanvasContext'
 import { resolveEnv } from '@/utils/EnvironmentVariables'
 
 export default class {
-  static call = 'echo [args...]'
+  static call = 'echo <args...>'
   static description = 'Affiche les arguments, séparés par un espace, sur la sortie standard'
 
   static handle(context: CanvasContext, args?: string[]) {

@@ -2,7 +2,7 @@ import { CanvasContext } from '@/utils/CanvasContext'
 import { search } from '@/utils/FileStructure'
 
 export default class {
-  static call = 'cat [file]'
+  static call = 'cat <file>'
   static description = "Affiche le contenu d'un fichier"
 
   static async handle(context: CanvasContext, args: string[]) {
