@@ -89,10 +89,22 @@ async function draw() {
       document.activeElement === input.value &&
       canvasContext.cursor.tickCount <= canvasContext.cursor.refresh
     ) {
-      const text = canvasContext.ctx.measureText(lines[lines.length - 1])
+      const cursorPosition =
+        (input.value?.selectionStart || 0) + canvasContext.userInput.base.length
+      let tmpPosition = cursorPosition
+      let cursorLine = 0
+      for (let i = 0; i < lines.length; i++) {
+        if (tmpPosition - lines[i].length <= 0) {
+          cursorLine = i
+          break
+        }
+        tmpPosition -= lines[i].length
+      }
+      const stringPart = lines[cursorLine].slice(0, tmpPosition)
 
-      canvasContext.cursor.x = text.width > 0 ? text.width : 0
-      canvasContext.cursor.y = canvasContext.terminal.height - canvasContext.font.size
+      canvasContext.cursor.x = canvasContext.ctx.measureText(stringPart).width
+      canvasContext.cursor.y =
+        canvasContext.terminal.height - canvasContext.font.size * (cursorLine - lines.length + 2)
       canvasContext.ctx.fillRect(
         canvasContext.cursor.x,
         canvasContext.cursor.y,
