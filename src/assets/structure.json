@@ -16,6 +16,9 @@
             "curl": "./commands/curl.ts"
           },
           {
+            "download": "./commands/download.ts"
+          },
+          {
             "echo": "./commands/echo.ts"
           },
           {
@@ -98,7 +101,7 @@
                 ]
               },
               {
-                "profil.md": "/storage/profil.md"
+                "resume.pdf": "/storage/resume.pdf"
               }
             ]
           }
