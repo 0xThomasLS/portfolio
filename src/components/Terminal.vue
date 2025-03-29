@@ -197,6 +197,7 @@ function scroll(event: Event) {
 function toggleFullscreen() {
   fullscreen.value = !fullscreen.value
   newExecution.value = true
+  requestAnimationFrame(calculateTranslation)
 }
 
 onMounted(() => {
