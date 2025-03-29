@@ -6,14 +6,6 @@ export type CanvasOptions = {
   emit: (event: 'close', ...args: any[]) => void
 }
 
-type ImageOptions = {
-  data: HTMLImageElement
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
 export class CanvasContext {
   public font = {
     size: 24,
@@ -24,8 +16,8 @@ export class CanvasContext {
   public cursor = {
     x: 0,
     y: 0,
-    width: (this.font.size + 2) / 2,
-    height: this.font.size + 2,
+    width: Math.floor((this.font.size * 1.35) / 2),
+    height: Math.floor(this.font.size * 1.35),
     refresh: 40,
     tickCount: 0,
   }
