@@ -13,6 +13,9 @@
             "clear": "./commands/clear.ts"
           },
           {
+            "curl": "./commands/curl.ts"
+          },
+          {
             "echo": "./commands/echo.ts"
           },
           {
