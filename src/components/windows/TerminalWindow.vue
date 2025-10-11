@@ -70,6 +70,32 @@ const rewriteLine = () => {
   term.write(`\x1b[${promptWithoutColors.value.length + cursorIndex.value + 1}G`)
 }
 
+const findPreviousWordStart = (str: string, fromIndex: number): number => {
+  if (fromIndex === 0) return 0
+
+  let i = fromIndex - 1
+  while (i > 0 && /\s/.test(str[i])) {
+    i--
+  }
+  while (i > 0 && !/\s/.test(str[i - 1])) {
+    i--
+  }
+  return i
+}
+
+const findNextWordStart = (str: string, fromIndex: number): number => {
+  if (fromIndex >= str.length) return str.length
+
+  let i = fromIndex
+  while (i < str.length && !/\s/.test(str[i])) {
+    i++
+  }
+  while (i < str.length && /\s/.test(str[i])) {
+    i++
+  }
+  return i
+}
+
 onMounted(async () => {
   term = new Terminal({
     cursorBlink: true,
@@ -146,17 +172,25 @@ onMounted(async () => {
         break
 
       case 'ArrowLeft':
-        if (cursorIndex.value > 0) {
-          cursorIndex.value--
-          rewriteLine()
+        if (domEvent.ctrlKey) {
+          cursorIndex.value = findPreviousWordStart(command.value, cursorIndex.value)
+        } else {
+          if (cursorIndex.value > 0) {
+            cursorIndex.value--
+          }
         }
+        rewriteLine()
         break
 
       case 'ArrowRight':
-        if (cursorIndex.value < command.value.length) {
-          cursorIndex.value++
-          rewriteLine()
+        if (domEvent.ctrlKey) {
+          cursorIndex.value = findNextWordStart(command.value, cursorIndex.value)
+        } else {
+          if (cursorIndex.value < command.value.length) {
+            cursorIndex.value++
+          }
         }
+        rewriteLine()
         break
 
       default:
