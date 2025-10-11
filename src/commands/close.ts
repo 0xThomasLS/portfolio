@@ -12,6 +12,14 @@ export const closeCommand: Command = {
       return
     }
 
+    if (id === 'all') {
+      for (let i = stores.windowsStore.windows.length - 1; i > 0; i--) {
+        const window = stores.windowsStore.windows[i]
+        stores.windowsStore.closeWindow(window.type)
+      }
+      return
+    }
+
     const window = stores.windowsStore.windows.find((w) => w.type === id)
 
     if (window) {

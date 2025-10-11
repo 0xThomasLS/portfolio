@@ -1,5 +1,5 @@
 <template>
-  <div ref="terminalContainerEl" class="h-full w-full overflow-hidden" :key="props.id"></div>
+  <div ref="terminalContainerEl" class="h-full w-full overflow-hidden"></div>
 </template>
 
 <script lang="ts" setup>
@@ -14,7 +14,6 @@ import 'xterm/css/xterm.css'
 const commands = ref<Map<string, Command>>(new Map())
 const isReady = ref(false)
 
-const props = defineProps({ id: { type: Number, required: true } })
 const windowsStore = useWindowsStore()
 const terminalStore = useTerminalStore()
 const terminalContainerEl = ref(null)

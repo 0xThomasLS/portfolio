@@ -7,7 +7,7 @@
   >
     <div
       v-for="(win, index) in windowsStore.windows"
-      :key="win.id"
+      :key="win.type"
       :class="[
         'bg-gray-900/80 border border-cyan-500/30 rounded-md overflow-hidden flex flex-col',
         gridItemLayout(index),
