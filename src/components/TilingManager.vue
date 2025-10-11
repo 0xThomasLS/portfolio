@@ -1,6 +1,8 @@
 <template>
-  <main
-    class="h-screen w-screen bg-black p-2 grid gap-2 transition-all duration-300 ease-in-out"
+  <TransitionGroup
+    tag="main"
+    name="tile"
+    class="h-screen w-screen bg-black p-2 grid gap-2"
     :style="windowsStore.gridStyles"
   >
     <div
@@ -17,7 +19,7 @@
         <span>[~:my{{ win.type }}]</span>
         <button
           @click="windowsStore.closeWindow(win.id)"
-          class="text-red-500 hover:text-red-400"
+          class="text-red-500 hover:text-red-400 cursor-pointer"
           v-if="win.type !== 'Terminal'"
         >
           [x]
@@ -25,22 +27,15 @@
       </header>
 
       <div class="p-4 flex-grow overflow-y-auto">
-        <component :is="windowComponents[win.type]" />
+        <component :is="windows[win.type]" />
       </div>
     </div>
-  </main>
+  </TransitionGroup>
 </template>
 
 <script lang="ts" setup>
 import { useWindowsStore } from '@/stores/windows'
-
-import TerminalWindow from '@/components/windows/TerminalWindow.vue'
-import SkillsWindow from '@/components/windows/SkillsWindow.vue'
-
-const windowComponents = {
-  Terminal: TerminalWindow,
-  Skills: SkillsWindow,
-}
+import { windows } from '@/datas/windows'
 
 const windowsStore = useWindowsStore()
 
@@ -51,3 +46,33 @@ const gridItemLayout = (index) => {
   return ''
 }
 </script>
+
+<style scoped>
+/* --- Animation d'entrée --- */
+.tile-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scaleY(0);
+  transform-origin: bottom;
+}
+.tile-enter-active {
+  transition: all 0.25s cubic-bezier(0, 1.1, 0.4, 1.05); /* Une courbe d'animation avec du rebond */
+}
+.tile-enter-to {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+}
+
+/* --- Animation de sortie --- */
+.tile-leave-from {
+  opacity: 1;
+  transform: scaleY(1);
+  transform-origin: top;
+}
+.tile-leave-active {
+  transition: all 0.2s ease-out;
+}
+.tile-leave-to {
+  opacity: 0;
+  transform: scaleY(0);
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div ref="terminalContainerEl" class="h-full w-full" :key="props.id"></div>
+  <div ref="terminalContainerEl" class="h-full w-full overflow-hidden" :key="props.id"></div>
 </template>
 
 <script lang="ts" setup>

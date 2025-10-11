@@ -1,4 +1,4 @@
-import { filesystem } from '@/utils/filesystem'
+import { filesystem } from '@/datas/filesystem'
 
 export const getNodeFromPath = (path: string, cwd: string) => {
   const basePath = path.startsWith('/') ? [] : cwd.split('/').filter(Boolean)
