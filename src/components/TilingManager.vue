@@ -16,9 +16,9 @@
       <header
         class="bg-gray-800/50 text-cyan-400 p-2 flex justify-between items-center text-sm font-mono"
       >
-        <span>[~:my{{ win.type }}]</span>
+        <span>{{ prettyTitle(win.type) }}</span>
         <button
-          @click="windowsStore.closeWindow(win.id)"
+          @click="windowsStore.closeWindow(win.type)"
           class="text-red-500 hover:text-red-400 cursor-pointer"
           v-if="win.type !== 'Terminal'"
         >
@@ -44,6 +44,10 @@ const gridItemLayout = (index) => {
     return 'col-start-2 row-span-2'
   }
   return ''
+}
+
+const prettyTitle = (title) => {
+  return '[~:my' + title.charAt(0).toUpperCase() + title.slice(1) + ']'
 }
 </script>
 
