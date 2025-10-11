@@ -14,6 +14,7 @@ export interface CommandContext {
 
 export interface Command {
   name: string
+  args?: string
   description: string
   execute: (context: CommandContext) => void
 }

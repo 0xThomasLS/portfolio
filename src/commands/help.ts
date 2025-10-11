@@ -5,9 +5,10 @@ export const helpCommand: Command = {
   description: 'Affiche cette aide.',
   execute: ({ term, allCommands }) => {
     term.writeln('Commandes disponibles :')
+
     allCommands.forEach((cmd) => {
-      const paddedName = cmd.name.padEnd(10, ' ')
-      term.writeln(`  \x1b[1;32m${paddedName}\x1b[0m - ${cmd.description}`)
+      const paddedLabel = (cmd.name + (cmd.args ? ' ' + cmd.args : '')).padEnd(15, ' ')
+      term.writeln(`  \x1b[1;32m${paddedLabel}\x1b[0m - ${cmd.description}`)
     })
   },
 }

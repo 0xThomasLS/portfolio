@@ -1,20 +1,36 @@
 import type { Command } from './types'
-import { welcomeCommand } from './welcome'
-import { helpCommand } from './help'
-import { clearCommand } from './clear'
-import { showCommand } from './show'
-import { closeCommand } from './close'
-import { lsCommand } from './ls'
-import { cdCommand } from './cd'
 
-const commandList: Command[] = [
-  welcomeCommand,
-  helpCommand,
-  clearCommand,
-  showCommand,
-  closeCommand,
-  lsCommand,
-  cdCommand,
-]
+const commandModules = import.meta.glob('./*.ts', { eager: false })
 
-export const commands = new Map<string, Command>(commandList.map((cmd) => [cmd.name, cmd]))
+export const commandNames = Object.keys(commandModules)
+  .map((path) => {
+    const fileName = path.split('/').pop() || ''
+    if (fileName.startsWith('index.') || fileName.startsWith('types.')) {
+      return null
+    }
+    return fileName.replace('.ts', '')
+  })
+  .filter(Boolean) as string[]
+
+let commandsMap: Map<string, Command> | null = null
+
+export const loadCommands = async (): Promise<Map<string, Command>> => {
+  if (commandsMap) return commandsMap
+
+  const newMap = new Map<string, Command>()
+  for (const path in commandModules) {
+    const fileName = path.split('/').pop() || ''
+    const commandName = fileName.replace('.ts', '')
+
+    if (commandNames.includes(commandName)) {
+      const module = (await commandModules[path]()) as any
+      const commandObject = module[`${commandName}Command`]
+
+      if (commandObject) {
+        newMap.set(commandName, commandObject)
+      }
+    }
+  }
+  commandsMap = newMap
+  return commandsMap
+}

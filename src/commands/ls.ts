@@ -3,6 +3,7 @@ import { getNodeFromPath } from '@/utils/pathResolver'
 
 export const lsCommand: Command = {
   name: 'ls',
+  args: '[<path>]',
   description: "Liste le contenu d'un répertoire.",
   execute: ({ term, args, stores }) => {
     const path = args[0] || '.'
@@ -15,7 +16,9 @@ export const lsCommand: Command = {
         term.writeln(isDir ? `\x1b[1;34m${item}\x1b[0m` : item)
       })
     } else {
-      term.writeln(`ls: impossible d'accéder à '${path}': N'est pas un répertoire`)
+      term.writeln(
+        `\x1b[1;31mErreur:\x1b[0m impossible d'accéder à '${path}': N'est pas un répertoire`,
+      )
     }
   },
 }

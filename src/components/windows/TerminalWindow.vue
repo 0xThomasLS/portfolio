@@ -6,10 +6,13 @@
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue'
 import { useTerminalStore } from '@/stores/terminal.js'
 import { useWindowsStore } from '@/stores/windows'
-import { commands } from '@/commands'
+import { loadCommands } from '@/commands'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
+
+const commands = ref<Map<string, Command>>(new Map())
+const isReady = ref(false)
 
 const props = defineProps({ id: { type: Number, required: true } })
 const windowsStore = useWindowsStore()
@@ -40,14 +43,14 @@ const runCommand = (cmd) => {
 
   term.writeln('')
 
-  const commandToExecute = commands.get(cmdName)
+  const commandToExecute = commands.value.get(cmdName)
 
   if (commandToExecute) {
     const context: CommandContext = {
       term,
       args,
       stores: { windowsStore, terminalStore },
-      allCommands: commands,
+      allCommands: commands.value,
     }
 
     commandToExecute.execute(context)
@@ -67,7 +70,7 @@ const rewriteLine = () => {
   term.write(`\x1b[${promptWithoutColors.value.length + cursorIndex.value + 1}G`)
 }
 
-onMounted(() => {
+onMounted(async () => {
   term = new Terminal({
     cursorBlink: true,
     fontSize: 14,
@@ -85,11 +88,18 @@ onMounted(() => {
   term.loadAddon(fitAddon)
   term.open(terminalContainerEl.value)
 
-  runCommand('welcome')
-  writePrompt()
-  fitAddon.fit()
+  term.writeln('Connecté. Initialisation du shell personnel...')
 
-  term.focus()
+  commands.value = await loadCommands()
+  isReady.value = true
+
+  setTimeout(() => {
+    runCommand('welcome')
+    writePrompt()
+    fitAddon.fit()
+
+    term.focus()
+  }, 600)
 
   term.onKey(({ key, domEvent }) => {
     const code = domEvent.key

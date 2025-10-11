@@ -113,17 +113,3 @@ const skillCategories = [
   },
 ]
 </script>
-
-<style scoped>
-/* Ajoute un style pour la scrollbar si besoin */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(56, 189, 248, 0.5);
-  border-radius: 3px;
-}
-</style>

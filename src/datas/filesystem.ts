@@ -1,21 +1,32 @@
-export const filesystem = {
+import { commandNames } from '@/commands'
+import { windows } from './windows'
+import { projects } from './projects'
+
+const baseFilesystem = {
   '/': {
+    bin: {},
     home: {
       thomas: {
-        projects: {
-          'portfolio-v2.js': '/* Mon projet de portfolio interactif */',
-          'secret-project.c': '/* Un projet top secret... */',
-        },
-        'about.md': '## Bonjour, je suis Thomas...',
-        'skills.json': '{ "dev": "...", "sec": "...", "ops": "..." }',
-        'contact.txt': 'Vous pouvez me joindre ici...',
+        'projects.json': JSON.stringify(projects),
+        'contact.txt': "Vous pouvez me joindre à l'adresse mail : thomas.lesciellour@gmail.com",
       },
     },
     etc: {
-      config: '...',
+      config: false,
     },
     var: {
-      logs: '...',
+      logs: false,
     },
+    srv: {},
   },
 }
+
+for (const commandName of commandNames) {
+  baseFilesystem['/'].bin[commandName] = `[commande executable: ${commandName}]`
+}
+
+for (const windowName of Object.keys(windows)) {
+  baseFilesystem['/'].srv[windowName] = `[fenêtre ouvrable: ${windowName}]`
+}
+
+export const filesystem = baseFilesystem

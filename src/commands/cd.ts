@@ -3,6 +3,7 @@ import { getNodeFromPath } from '@/utils/pathResolver'
 
 export const cdCommand: Command = {
   name: 'cd',
+  args: '[<path>]',
   description: "Effectue un déplacement dans l'arborescence de fichier.",
   execute: ({ term, args, stores }) => {
     const targetPath = args[0] || '/home/thomas'
@@ -23,7 +24,9 @@ export const cdCommand: Command = {
       const newCwd = '/' + resolvedPathSegments.join('/')
       stores.terminalStore.changeDirectory(newCwd)
     } else {
-      term.writeln(`cd: ${targetPath}: N'est pas un répertoire ou n'existe pas`)
+      term.writeln(
+        `\x1b[1;31mErreur:\x1b[0m ${targetPath}: N'est pas un répertoire ou n'existe pas`,
+      )
     }
   },
 }
