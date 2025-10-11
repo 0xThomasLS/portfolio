@@ -20,7 +20,7 @@
         <button
           @click="windowsStore.closeWindow(win.type)"
           class="text-red-500 hover:text-red-400 cursor-pointer"
-          v-if="win.type !== 'Terminal'"
+          v-if="win.type !== 'terminal'"
         >
           [x]
         </button>
