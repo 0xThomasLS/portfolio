@@ -17,7 +17,7 @@
 
         <div class="w-full h-px bg-green-400/50 mb-2"></div>
 
-        <div v-for="item in identityData" :key="item.key" class="flex">
+        <div v-for="item in bioData" :key="item.key" class="flex">
           <span class="w-32 text-green-400 font-bold">{{ item.key }}</span>
           <span class="text-cyan-200">{{ item.value }}</span>
         </div>
@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { bioData } from '@/datas/bio'
 
 const githubUsername = '0xThomasLS'
 const avatarUrl = computed(() => `https://github.com/${githubUsername}.png`)
@@ -44,14 +45,6 @@ const asciiArt = `
    /'\\_   _/\\\`
    \\___)=(___/
 `
-const identityData = [
-  { key: 'Titre', value: 'Lead DevSecOps' },
-  { key: 'Localisation', value: 'France' },
-  { key: 'Philosophie', value: 'Automatiser, Sécuriser, Itérer' },
-  { key: 'OS_Préféré', value: 'Linux (Arch, évidemment)' },
-  { key: 'Éditeurs', value: 'Zed.dev / nano' },
-  { key: 'Statut', value: 'En quête de nouveaux défis' },
-]
 </script>
 
 <style scoped>
