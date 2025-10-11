@@ -1,14 +1,21 @@
 import { commandNames } from '@/commands'
 import { windows } from './windows'
+import { bioData } from './bio'
+import { contacts } from './contacts'
 import { projects } from './projects'
+import { stats } from './stats'
+import { timelineEvents } from './timeline'
 
 const baseFilesystem = {
   '/': {
     bin: {},
     home: {
       thomas: {
+        'bio.json': JSON.stringify(bioData),
+        'contacts.json': JSON.stringify(contacts),
         'projects.json': JSON.stringify(projects),
-        'contact.txt': "Vous pouvez me joindre à l'adresse mail : thomas.lesciellour@gmail.com",
+        'stats.json': JSON.stringify(stats),
+        'timeline.json': JSON.stringify(timelineEvents),
       },
     },
     etc: {
