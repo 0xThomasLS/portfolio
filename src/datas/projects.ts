@@ -16,6 +16,12 @@ export const projects = [
     repoUrl: 'https://github.com/0xThomasLS/keystone-browser',
   },
   {
+    title: 'TCQR Motor',
+    status: { text: 'IN_PROGRESS', class: 'bg-yellow-500/20 text-yellow-300' },
+    description: 'Une version un peu plus moderne du site web du garage TCQR',
+    tags: ['Vue.js', 'Pinia', 'Youtube API', 'TailwindCSS', 'Netlify'],
+  },
+  {
     title: 'Suricate',
     status: { text: 'ARCHIVED', class: 'bg-gray-500/20 text-gray-300' },
     description: "Mini dashboard de vérification de status d'une liste JSON de pages web ou d'IP",

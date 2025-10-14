@@ -16,6 +16,11 @@ export const showCommand: Command = {
     const windowType = Object.keys(windows).find((w) => w === id)
 
     if (windowType) {
+      if (stores.windowsStore.windows.length >= 4) {
+        term.writeln('\x1b[1;31mErreur:\x1b[0m Nombre maximum de fenêtres ouvertes atteint.')
+        return
+      }
+
       stores.windowsStore.openWindow(windowType)
     } else {
       term.writeln(`\x1b[1;31mErreur:\x1b[0m Fenêtre '${id}' non trouvée.`)

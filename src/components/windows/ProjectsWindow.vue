@@ -31,6 +31,7 @@
           </div>
 
           <a
+            v-if="project.repoUrl"
             :href="project.repoUrl"
             target="_blank"
             class="text-green-400 hover:text-green-300 transition-colors whitespace-nowrap ml-4"
@@ -38,6 +39,7 @@
           >
             [ voir le code ]
           </a>
+          <span v-else class="text-red-400 whitespace-nowrap ml-4">[ private ]</span>
         </div>
       </div>
     </div>

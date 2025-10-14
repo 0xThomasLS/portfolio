@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import { chartDatas, skillCategories } from '@/datas/skills'
 import { Radar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -42,13 +43,7 @@ import {
 ChartJS.register(Title, Tooltip, Legend, PointElement, RadialLinearScale, LineElement, Filler)
 
 const chartData = {
-  labels: [
-    'Développement (Dev)',
-    'Sécurité (Sec)',
-    'Opérations (Ops)',
-    'Automatisation',
-    'Cloud & Infra',
-  ],
+  labels: Object.keys(chartDatas),
   datasets: [
     {
       label: 'Niveau de Maîtrise',
@@ -58,7 +53,7 @@ const chartData = {
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: 'rgba(56, 189, 248, 1)',
-      data: [90, 75, 65, 85, 60],
+      data: Object.values(chartDatas),
     },
   ],
 }
@@ -86,30 +81,4 @@ const chartOptions = {
     },
   },
 }
-
-const skillCategories = [
-  {
-    title: 'LANGAGES & FRAMEWORKS',
-    skills: ['Php', 'JavaScript/TS', 'Node.js', 'Vue.js', 'Rust', 'Bash'],
-  },
-  {
-    title: 'CLOUD & OPÉRATIONS',
-    skills: [
-      'OVH',
-      'Docker',
-      'Kubernetes',
-      'Linux',
-      'Traefik',
-      'Apache',
-      'Nginx',
-      'Prometheus',
-      'Grafana',
-      'Portainer',
-    ],
-  },
-  {
-    title: 'SÉCURITÉ & CI/CD',
-    skills: ['Wazuh', 'SAST/DAST', 'Terraform', 'Ansible', 'GitLab CI'],
-  },
-]
 </script>
