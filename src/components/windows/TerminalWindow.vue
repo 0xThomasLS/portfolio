@@ -1,5 +1,5 @@
 <template>
-  <div ref="terminalContainerEl" class="h-full w-full overflow-hidden"></div>
+  <div ref="terminalContainerEl" class="relative h-full w-full overflow-hidden"></div>
 </template>
 
 <script lang="ts" setup>
