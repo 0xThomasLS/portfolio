@@ -4,7 +4,7 @@ import TilingManager from '@/components/TilingManager.vue'
 
 <template>
   <div
-    class="block xl:hidden absolute z-40 top-0 left-0 h-full w-full flex flex-col gap-4 bg-black font-vt323-regular text-center p-4"
+    class="xl:hidden absolute z-40 top-0 left-0 h-full w-full flex flex-col gap-4 bg-black font-vt323-regular text-center p-4"
   >
     <h1 class="flex-none text-orange-400 text-6xl">Accessible via terminal</h1>
     <div class="flex-1 flex flex-col justify-center items-center">
@@ -17,7 +17,7 @@ import TilingManager from '@/components/TilingManager.vue'
     </div>
     <p class="flex-none text-red-600 text-4xl uppercase">Trop petit, utilisez un PC</p>
   </div>
-  <TilingManager />
+  <TilingManager class="hidden xl:grid" />
 </template>
 
 <style scoped></style>
